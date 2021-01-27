@@ -44,7 +44,8 @@ class CreateSystemUserSerializer(serializers.ModelSerializer):
         django_user_data.update({
             "username": django_user_data["email"]
         })
-        django_user_serializer = CreateDjangoUserSerializer(data=django_user_data)
+        django_user_serializer = CreateDjangoUserSerializer(
+            data=django_user_data)
         django_user_serializer.is_valid(raise_exception=True)
         django_user = django_user_serializer.save()
         validated_data.update({
@@ -85,11 +86,11 @@ class CreateTweetSerializer(serializers.ModelSerializer):
                 tweet.hashtags.add(hashtag)
                 tweet.save()
         return tweet
-            #     try:
-            #         hashtag = Hashtag.objects.get(text = word)
-            #         hashtags.append(hashtag)
-            #     except Hashtag.DoesNotExist:
-            #         hashtag = Hashtag.objects.create(text=word)
-            #         hashtags.append(hashtag)
-            # for hashtag in hashtags:
-            #     tweet.hashtags.add(hashtag)
+        #     try:
+        #         hashtag = Hashtag.objects.get(text = word)
+        #         hashtags.append(hashtag)
+        #     except Hashtag.DoesNotExist:
+        #         hashtag = Hashtag.objects.create(text=word)
+        #         hashtags.append(hashtag)
+        # for hashtag in hashtags:
+        #     tweet.hashtags.add(hashtag)
