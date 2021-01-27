@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User as DjangoUser
 from rest_framework.exceptions import ValidationError
 
-from core.models import SystemUser
+from core.models import SystemUser, Tweet, Hashtag
 
 
 class DjangoUserSerializer(serializers.ModelSerializer):
@@ -15,12 +15,11 @@ class DjangoUserSerializer(serializers.ModelSerializer):
             'password': {'write_only': True}
         }
 
-class CreateDjangoUserSerializer(serializers.ModelSerializer):
 
+class CreateDjangoUserSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('username', 'password', 'email',)
         model = DjangoUser
-
 
     def save(self, **kwargs):
         user = DjangoUser(
@@ -31,12 +30,13 @@ class CreateDjangoUserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+
 class CreateSystemUserSerializer(serializers.ModelSerializer):
     user = DjangoUserSerializer()
 
     class Meta:
         model = SystemUser
-        fields = ('user','at_name')
+        fields = ('user', 'at_name')
 
     def create(self, validated_data):
         # print('fcuk')
@@ -63,3 +63,33 @@ class UpdateSystemUserSerializer(serializers.ModelSerializer):
         model = SystemUser
         # fields = ('at_name', 'pro_pic')
         fields = ('at_name',)
+
+
+class CreateTweetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tweet
+        fields = ('content',)
+
+        # fields = ('content', 'image',)
+
+    def create(self, validated_data):
+        tweet = Tweet.objects.create(**validated_data)
+        content = validated_data['content']
+        words = content.split(" ")
+        hashtags = []
+        for word in words:
+            if word.startswith('#'):
+                hashtag, is_created = Hashtag.objects.get_or_create(text=word)
+                hashtags.append(hashtag)
+            for hashtag in hashtags:
+                tweet.hashtags.add(hashtag)
+                tweet.save()
+        return tweet
+            #     try:
+            #         hashtag = Hashtag.objects.get(text = word)
+            #         hashtags.append(hashtag)
+            #     except Hashtag.DoesNotExist:
+            #         hashtag = Hashtag.objects.create(text=word)
+            #         hashtags.append(hashtag)
+            # for hashtag in hashtags:
+            #     tweet.hashtags.add(hashtag)

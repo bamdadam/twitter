@@ -4,7 +4,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.response import Response
 
-from core.serializers import CreateSystemUserSerializer,UpdateSystemUserSerializer
+from core.serializers import CreateSystemUserSerializer, UpdateSystemUserSerializer, CreateTweetSerializer
 from core.permissions import UpdateUserPermission
 from core.models import SystemUser
 
@@ -26,6 +26,13 @@ class UpdateSystemUser(generics.UpdateAPIView):
     def get_object(self):
         return get_object_or_404(SystemUser, id=self.kwargs["id"])
 
+
+class CreateTweet(generics.CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated, ]
+    serializer_class = CreateTweetSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(original_owner=self.request.user.systemuser)
 
 # class HelloWorld(generics.GenericAPIView):
 #     permissions = (permissions.IsAuthenticated,)
