@@ -74,13 +74,13 @@ class ListCreateRelationShip(generics.ListCreateAPIView):
 
 
 class ListSystemUser(generics.ListAPIView):
-    permissions_classes = (permissions.IsAuthenticated,)
+    permissions_classes = []
     queryset = SystemUser.objects.all()
     serializer_class = SystemUserSerializer
 
 
 class RetrieveSystemUser(generics.RetrieveAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = []
     queryset = SystemUser.objects.all()
     serializer_class = SystemUserSerializer
 
