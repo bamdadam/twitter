@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User as DjangoUser
 from rest_framework.exceptions import ValidationError
 
-from core.models import SystemUser, Tweet, Hashtag
+from core.models import SystemUser, Tweet, Hashtag, RelationShip, Event
 
 
 class DjangoUserSerializer(serializers.ModelSerializer):
@@ -65,6 +65,14 @@ class UpdateSystemUserSerializer(serializers.ModelSerializer):
         fields = ('at_name',)
 
 
+class SystemUserSerializer(serializers.ModelSerializer):
+    user = DjangoUserSerializer()
+
+    class Meta:
+        model = SystemUser
+        fields = ('id', 'user', 'at_name')
+
+
 class CreateTweetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tweet
@@ -85,11 +93,44 @@ class CreateTweetSerializer(serializers.ModelSerializer):
                 tweet.hashtags.add(hashtag)
                 tweet.save()
         return tweet
-            #     try:
-            #         hashtag = Hashtag.objects.get(text = word)
-            #         hashtags.append(hashtag)
-            #     except Hashtag.DoesNotExist:
-            #         hashtag = Hashtag.objects.create(text=word)
-            #         hashtags.append(hashtag)
-            # for hashtag in hashtags:
-            #     tweet.hashtags.add(hashtag)
+        #     try:
+        #         hashtag = Hashtag.objects.get(text = word)
+        #         hashtags.append(hashtag)
+        #     except Hashtag.DoesNotExist:
+        #         hashtag = Hashtag.objects.create(text=word)
+        #         hashtags.append(hashtag)
+        # for hashtag in hashtags:
+        #     tweet.hashtags.add(hashtag)
+
+
+class RelationShipSerializer(serializers.ModelSerializer):
+    second_user = SystemUserSerializer(read_only=True)
+    first_user = SystemUserSerializer(read_only=True)
+    relationship_type = serializers.CharField(default='F')
+    second_user_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = RelationShip
+        fields = ('first_user', 'second_user_id', 'relationship_type', 'second_user', 'id')
+
+    def create(self, validated_data):
+        validated_data['second_user'] = SystemUser.objects.get(id=validated_data['second_user_id'])
+        if validated_data['second_user'] == validated_data['first_user']:
+            raise ValidationError({'details': 'can not follow myself'})
+        return self.Meta.model.objects.create(**validated_data)
+
+
+class TweetSerializer(serializers.ModelSerializer):
+
+
+    class Meta:
+        model = Tweet
+        fields = ('original_owner', 'content', 'hashtags', 'like_count')
+
+# class UserAndTweetserializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = SystemUser
+#         fields = ('owned_tweets',)
+#
+#     def create(self, validated_data):
+#         pass
