@@ -27,7 +27,8 @@ class Hashtag(models.Model):
 
 
 class Tweet(models.Model):
-    original_owner = models.ForeignKey(SystemUser, on_delete=models.CASCADE, related_name="owned_tweets")
+    original_owner = models.ForeignKey(
+        SystemUser, on_delete=models.CASCADE, related_name="owned_tweets")
     content = models.CharField(max_length=255)
     # image = models.ImageField(upload_to=get_image_upload_path, blank=True, null=True)
     hashtags = models.ManyToManyField(Hashtag)
