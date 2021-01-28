@@ -121,14 +121,16 @@ class TimeLineTweets(generics.ListAPIView):
 
     @staticmethod
     def get_following_tweets(following):
-        return following.owned_tweets | following.retweeted_tweets
+        return following.owned_tweets.all() | following.retweeted_tweets.all()
 
     def get_queryset(self):
+        # print("fuck")
         user = self.request.user.systemuser
         relationships = RelationShip.objects.filter(first_user=user)
+        # print(relationships)
         all_tweets = None
         for rel in relationships:
-            following = rel['second_user']
+            following = rel.second_user
             if all_tweets is None:
                 all_tweets = self.get_following_tweets(following)
             else:
@@ -144,6 +146,11 @@ class SystemUserDetail(generics.RetrieveAPIView):
     def get_object(self):
         return self.request.user.systemuser
 
+
+class RetrieveTweet(generics.RetrieveAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    queryset = Tweet.objects.all()
+    serializer_class = TweetSerializer
 
 # class HomePageTweets(generics.ListAPIView):
 #     permission_classes = (permissions.IsAuthenticated,)

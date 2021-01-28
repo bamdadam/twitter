@@ -121,11 +121,9 @@ class RelationShipSerializer(serializers.ModelSerializer):
 
 
 class TweetSerializer(serializers.ModelSerializer):
-
-
     class Meta:
         model = Tweet
-        fields = ('original_owner', 'content', 'hashtags', 'like_count')
+        fields = ('original_owner', 'content', 'hashtags', 'like_count', 'id')
 
 # class UserAndTweetserializer(serializers.ModelSerializer):
 #     class Meta:
